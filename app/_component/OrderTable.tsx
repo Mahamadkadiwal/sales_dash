@@ -38,11 +38,11 @@ export default function OrderTable() {
 //   }
 
   const columns = [
-    { headers: "Customer Name", key: "customer_name" },
-    { headers: "Product Name", key: "product_name" },
-    { headers: "Amount", key: "amount" },
-    { headers: "Order Date", key: "order_date" },
-    { headers: "Status", key: "status" },
+    { header: "Customer Name", key: "customer_name" },
+    { header: "Product Name", key: "product_name" },
+    { header: "Amount", key: "amount" },
+    { header: "Order Date", key: "order_date" },
+    { header: "Status", key: "status" },
   ];
 
   if (!orders.length) return <div>Loading...</div>;
@@ -53,3 +53,4 @@ export default function OrderTable() {
     </>
   );
 }
+
