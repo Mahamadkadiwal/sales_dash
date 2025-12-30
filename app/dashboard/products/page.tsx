@@ -40,6 +40,7 @@ export default function Page() {
       try {
         addProduct(formData);
         toast.success("Product added successfully");
+        window.dispatchEvent(new Event("products-updated"));
       } catch(error){
         console.log('error', error);
         toast.error("Failed to add product");
@@ -100,3 +101,4 @@ export default function Page() {
         </div>
   )
 }
+
