@@ -139,7 +139,7 @@ export default function Charts() {
 
         {!data || data[`${chartType}Chart`].length === 0 ? (
           <div className="text-center text-gray-500 text-sm md:text-base">
-            📉 No orders found yet
+             No orders found yet
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
@@ -164,4 +164,5 @@ export default function Charts() {
 );
 
 }
+
 
