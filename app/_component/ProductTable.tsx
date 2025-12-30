@@ -9,10 +9,15 @@ import toast from 'react-hot-toast';
 export default function ProductTable() {
   const [products, setProduct] = useState<Product[]>([]);
 
-  const memoizedProducts = useMemo(() =>  getProduct(), []);
+ useEffect(() => {
+  const load = () => setProduct(getProduct());
 
-  useEffect(() => {setProduct(memoizedProducts);
-  }, [memoizedProducts]);
+  load(); // initial load
+
+  window.addEventListener("products-updated", load);
+
+  return () => window.removeEventListener("products-updated", load);
+}, []);
 
   if (!products || products.length === 0) return <div>No products found</div>;
 
@@ -56,3 +61,4 @@ export default function ProductTable() {
 
   )
 }
+
