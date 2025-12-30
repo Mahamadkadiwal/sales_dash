@@ -45,8 +45,7 @@ export default function OrderTable() {
     { headers: "Status", key: "status" as keyof Order },
   ];
 
-  if (!orders.length) return <div>Loading...</div>;
-  if(orders.length === 0) return <div>No orders found.</div>;
+  if (!orders || orders.length === 0) return <div>No orders found</div>;
   return (
     <>
     {/* <button onClick={handlesave}>Ad</button> */}
@@ -54,4 +53,5 @@ export default function OrderTable() {
     </>
   );
 }
+
 
