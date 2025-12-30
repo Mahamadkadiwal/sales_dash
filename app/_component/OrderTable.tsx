@@ -46,6 +46,7 @@ export default function OrderTable() {
   ];
 
   if (!orders.length) return <div>Loading...</div>;
+  if(orders.length === 0) return <div>No orders found.</div>;
   return (
     <>
     {/* <button onClick={handlesave}>Ad</button> */}
@@ -53,3 +54,4 @@ export default function OrderTable() {
     </>
   );
 }
+
