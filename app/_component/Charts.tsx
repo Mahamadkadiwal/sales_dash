@@ -10,6 +10,7 @@ import {
   Legend,
 } from "recharts";
 import { getOrders } from "../_lib/localStorage";
+import { Order } from "../_types/order";
 
 type chartPoint = {
   date: string;
@@ -23,17 +24,13 @@ interface chartDataSet{
   weeklyChart: chartPoint[];
 }
 
-type order = {
-  order_date: string;
-  amount: number;
-}
 
 export default function Charts() {
   const [data, setData] = useState<chartDataSet | null>(null);
   const [chartType, setChartType] = useState<"daily" | "monthly" | "weekly">('daily');
 
   useEffect(() => {
-    const orders = getOrders() as order[] | null;
+    const orders = getOrders() as Order[] | null;
     if (orders && orders.length > 0) {
       const dailyData : Record<string, chartPoint> = {};
       const monthlyDate : Record<string, chartPoint> = {};
@@ -153,3 +150,4 @@ export default function Charts() {
     </div>
   );
 }
+
