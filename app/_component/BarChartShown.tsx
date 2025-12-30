@@ -48,7 +48,11 @@ export default function BarChartShown() {
       </h3>
 
       <div className="w-full h-[240px] sm:h-[280px] md:h-[320px] lg:h-[360px]">
-        {data && (
+        {!data || data.length === 0 ? (
+          <div className="flex items-center justify-center w-full h-full text-gray-500">
+            No product data available
+          </div>
+        ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={data}
@@ -67,3 +71,4 @@ export default function BarChartShown() {
     </div>
   );
 }
+
