@@ -135,8 +135,13 @@ export default function Charts() {
       </div>
 
       {/* Responsive Chart */}
-      <div className="w-full h-[250px] sm:h-[320px] md:h-[380px] lg:h-[420px]">
-        {data && (
+      <div className="w-full h-[250px] sm:h-[320px] md:h-[380px] lg:h-[420px] flex items-center justify-center">
+
+        {!data || data[`${chartType}Chart`].length === 0 ? (
+          <div className="text-center text-gray-500 text-sm md:text-base">
+            📉 No orders found yet
+          </div>
+        ) : (
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data[`${chartType}Chart`]}
@@ -152,9 +157,11 @@ export default function Charts() {
             </LineChart>
           </ResponsiveContainer>
         )}
+
       </div>
     </div>
   </div>
 );
 
 }
+
