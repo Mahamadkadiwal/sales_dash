@@ -24,6 +24,8 @@ export default function OrderTable() {
   function handleSave(id: string, updatedRow: Order){
     editOrder(id, updatedRow);
     fetchOrders();
+
+     window.dispatchEvent(new Event("orders-updated"));
   }
 
   function handleDelete(order_id: string){
@@ -53,5 +55,6 @@ export default function OrderTable() {
     </>
   );
 }
+
 
 
