@@ -13,8 +13,17 @@ export default function Page() {
   const [data, setData] = useState<DashboardData | null>(null);
 
   useEffect(() => {
+    const loadDashboard = () => {
     const data = dashboardCountData();
     if (data) setData(data);
+  };
+
+  loadDashboard(); 
+
+  window.addEventListener("orders-updated", loadDashboard);
+
+  return () =>
+    window.removeEventListener("orders-updated", loadDashboard);
   }, []);
 
   if (!data) return <div className="p-4">Loading...</div>;
@@ -57,3 +66,4 @@ export default function Page() {
     </div>
   );
 }
+
