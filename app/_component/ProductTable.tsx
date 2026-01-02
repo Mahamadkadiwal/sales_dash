@@ -8,18 +8,20 @@ import toast from 'react-hot-toast';
 
 export default function ProductTable() {
   const [products, setProduct] = useState<Product[]>([]);
+  console.log(products)
+  //const memoizedProducts = useMemo(() =>  getProduct(), []);
 
- useEffect(() => {
+  useEffect(() => {
   const load = () => setProduct(getProduct());
 
-  load(); // initial load
+  load();
 
   window.addEventListener("products-updated", load);
 
   return () => window.removeEventListener("products-updated", load);
 }, []);
 
-  if (!products || products.length === 0) return <div>No products found</div>;
+  if (!products) return <div>Loading...</div>;
 
   function handleSave(id: string, updatedRow: Product) {
    try{ 
@@ -41,11 +43,12 @@ export default function ProductTable() {
     setProduct(prev => prev.filter(p => p.id !== id));
   }
 
-  // const orders1 = productData();
+  const orders1 = productData();
 
-  // function addProduct(){
-  //     localStorage.setItem("products", JSON.stringify(orders1));
-  // }
+  function addProduct(){
+      localStorage.setItem("products", JSON.stringify(orders1));
+      window.dispatchEvent(new Event("products-updated"));
+  }
 
   const columns: Column<Product>[] = [
     { headers: "Name", key: "name" as keyof Product },
@@ -55,10 +58,9 @@ export default function ProductTable() {
   ];
   return (
     <>
-      {/* <button onClick={addProduct}>Add</button> */}
+      {products.length === 0 && <button onClick={addProduct} className='m-3 primary-btn'>Add Product to Localhost</button>}
       <TableCrud<Product> data={products} columns={columns} onSave={handleSave} onDelete={handleDelete} />
     </>
 
   )
 }
-
