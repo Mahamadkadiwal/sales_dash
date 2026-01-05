@@ -17,6 +17,7 @@ export default function Page() {
   function handleOrder(product: Product) {
     // alert(`Order placed for: ${product.name}`);
     const user = getCurrentUser();
+    setLoading(true);
 
     const data = {
       id: "",
@@ -30,9 +31,11 @@ export default function Page() {
     try{
       addOrder(data);
       toast.success("Order placed successfully");
+      setLoading(false);
     } catch (error) {
       console.log("error", error);
       toast.error("Failed to place order");
+      setLoading(false);
     }
 
   }
@@ -87,3 +90,4 @@ export default function Page() {
     </div>
   );
 }
+
