@@ -1,14 +1,17 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
-import OrderTable from "../../_component/OrderTable";
-import PageHeader from "../../_component/PageHeader";
-import Modal from "../../_component/Modal";
-import Input from "../../_component/Input";
-import { addOrder, getOrders, getProduct } from "../../_lib/localStorage";
 import { Order } from "@/app/_types/order";
 import { Product } from "@/app/_types/Product";
-import { Status } from "@/app/_types/input";
+import { OrderFormData, orderSchema } from "@/app/Schema/Order";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import Input from "../../_component/Input";
+import Modal from "../../_component/Modal";
+import OrderTable from "../../_component/OrderTable";
+import PageHeader from "../../_component/PageHeader";
+import { addOrder, getOrders, getProduct } from "../../_lib/localStorage";
+import toast from "react-hot-toast";
 
 export default function page() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -32,33 +35,38 @@ export default function page() {
     setProducts(productData);
   }, []);
 
-  const [formData, setFormData] = useState<Order>({
-    id: "",
-    customer_name: "",
-    product_name: "",
-    amount: "",
-    order_date: "",
-    status: "Pending",
-    isNew: true,
+  const {
+    register, 
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<OrderFormData>({
+    resolver: zodResolver(orderSchema),
+    defaultValues: {
+      id: "",
+      customer_name: "",
+      product_name: "",
+      amount: "",
+      order_date: "",
+      status: "Pending",
+      isNew: true,
+    },
   });
 
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    if (
-      !formData.customer_name ||
-      !formData.product_name ||
-      !formData.amount ||
-      !formData.order_date
-    ) {
-      alert("Please fill all fields");
-      return;
+  function onSubmit(data: OrderFormData) {
+    try {
+      addOrder(data);
+      toast.success("Order added successfully");
+      reset();
+      fetchOrders();
+      setIsOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add order");
     }
-    addOrder(formData);
-    fetchOrders();
-    setIsOpen(false);
   }
+
 
   function handleClick() {
     setIsOpen(!isOpen);
@@ -73,12 +81,12 @@ export default function page() {
       </div>
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Add Order">
-        <form className="space-y-3" onSubmit={handleSubmit}>
+        <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
           <Input placeholder="Customer Name" 
-          value={formData.customer_name} id="customer_name"
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setFormData({ ...formData, customer_name: e.target.value })
-            } />
+          {...register("customer_name")} 
+          id="customer_name"
+          error={errors.customer_name?.message}
+          />
 
           {/* <Input
             id="product_name"
@@ -89,47 +97,56 @@ export default function page() {
             placeholder="Product Name"
           /> */}
 
-          <select className="input-field" 
-          name="product" 
-          value={formData.product_name}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) => 
-            setFormData ({ ...formData, product_name: e.target.value })
-          }>
-            <option value="">Select Product</option>
-            {products.map((product) => (
-              <option key={product.id} value={product.name}>{product.name}</option>
-            ))}
-          </select>
+          <div>
+            <select
+              className="input-field"
+              {...register("product_name")}
+            >
+              <option value="">Select Product</option>
+              {products.map(product => (
+                <option key={product.id} value={product.name}>
+                  {product.name}
+                </option>
+              ))}
+            </select>
+            {errors.product_name && (
+              <p className="text-red-500 text-sm">
+                {errors.product_name.message}
+              </p>
+            )}
+          </div>
 
-          <Input id="amount" value={formData.amount} onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setFormData({ ...formData, amount: e.target.value })
-            } placeholder="Amount" />
+          <Input id="amount"
+            {...register("amount")}
+            error={errors.amount?.message}
+             placeholder="Amount" />
 
           <Input
             id="order_date"
             type="date"
-            value={formData.order_date}
+            {...register("order_date")}
+            error={errors.order_date?.message}
             className=" text-(--font-color)"
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setFormData({ ...formData, order_date: e.target.value })
-            }
             placeholder="Order Date"
           />
 
-          <select
-            name="status"
-            className="w-full text-(--font-color) border p-2 rounded"
-            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                setFormData({ ...formData, status: e.target.value as Status })
-            }
-            defaultValue="Pending"
-          >
-            <option>Pending</option>
-            <option>Processing</option>
-            <option>Shipped</option>
-            <option>Delivered</option>
-            <option>Cancelled</option>
-          </select>
+          <div>
+            <select
+              className="w-full text-(--font-color) border p-2 rounded"
+              {...register("status")}
+            >
+              <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            {errors.status && (
+              <p className="text-red-500 text-sm">
+                {errors.status.message}
+              </p>
+            )}
+          </div>
 
           <button
             type="submit"
