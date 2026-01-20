@@ -17,8 +17,9 @@ export const orderSchema = z.object({
   product_name: z.string().min(1, "Product is required"),
   amount: z.string().min(1, "Amount is required"),
   order_date: z.string().min(1, "Order date is required"),
-  status: StatusEnum.default("Pending"),
-  isNew: z.boolean().default(true),
+  status: StatusEnum,
+  isNew: z.boolean(),
 });
 
 export type OrderFormData = z.infer<typeof orderSchema>;
+
