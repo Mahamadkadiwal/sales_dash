@@ -9,23 +9,33 @@ import toast from "react-hot-toast";
 import { addProduct, getProduct } from "../../_lib/localStorage";
 import { Product } from "@/app/_types/Product";
 import { productData } from "@/app/_lib/ProductData";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { ProductFormData, productSchema } from "@/app/Schema/Product";
 
 export default function Page() {
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
-    const [formData, setFormData] = useState<Product>({
-      id: "",
-      name: "",
-      description: "",
-      image: "",
-      price: "",
-      isNew: true,
-    });
 
     const [products, setProduct] = useState<Product[]>([]);
       
       //const memoizedProducts = useMemo(() =>  getProduct(), []);
     
+      const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors },
+      } = useForm<ProductFormData>({
+        resolver: zodResolver(productSchema),
+        defaultValues: {
+          name: "",
+          description: "",
+          price: "",
+          image: "",
+        },
+      });
+
       const fetchProducts = useCallback(() => {
         const products = getProduct() as Product[];
         if(!products || products.length === 0){
@@ -43,37 +53,29 @@ export default function Page() {
     setIsOpen(!isOpen);
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-      e.preventDefault();
-  
-      if (
-        !formData.name ||
-        !formData.description ||
-        !formData.image || 
-        !formData.price
-      ) {
-        toast.error("Please fill all fields");
-        return;
-      }
-      try {
-        addProduct(formData);
-        toast.success("Product added successfully");
-        fetchProducts();
-      } catch(error){
-        console.log('error', error);
-        toast.error("Failed to add product");
-      }
-      setIsOpen(false);
-    }
 
-    function handleFileChange(e: ChangeEvent<HTMLInputElement>){
-      const file = e.target.files?.[0];
-      if(!file) return;
-      setFormData({
-        ...formData,
-        image: "/products/" + file.name
-      });
+
+  function onSubmit(data: ProductFormData) {
+    try {
+      addProduct(data);
+      toast.success("Product added successfully");
+      fetchProducts();
+      setIsOpen(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add product");
     }
+  }
+
+    function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setValue("image", `/products/${file.name}`, {
+      shouldValidate: true,
+    });
+  }
+
   return (
     <div className="bg-white min-h-screen p-2">
           <PageHeader title="Products" btnText="Add Products" onClick={handleClick} />
@@ -83,33 +85,28 @@ export default function Page() {
           </div>
     
           <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Add Product">
-            <form className="space-y-4" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
               <Input
               type="text"
               placeholder="Product Name" 
-              value={formData.name}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({
-                ...formData, name: e.target.value
-              })}
+              {...register("name")}
+              error={errors.name?.message}
               />
 
               <Input placeholder="Product Description"
-              value={formData.description}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({
-                ...formData, description: e.target.value
-              })}
+              {...register("description")}
+              error={errors.description?.message}
               />
 
               <Input
               type="file"
               onChange={handleFileChange}
+              error={errors.image?.message}
             />
 
               <Input placeholder="Product Price" 
-              value={formData.price}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({
-                ...formData, price: e.target.value
-              })}
+              {...register("price")}
+              error={errors.price?.message}
               type="number"
               />
 
