@@ -56,7 +56,7 @@ export default function page() {
 
   function onSubmit(data: OrderFormData) {
     try {
-      addOrder(data);
+      addOrder({...data, id: ""});
       toast.success("Order added successfully");
       reset();
       fetchOrders();
@@ -159,3 +159,4 @@ export default function page() {
     </div>
   );
 }
+
